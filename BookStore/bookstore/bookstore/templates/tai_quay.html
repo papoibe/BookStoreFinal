@@ -1,0 +1,583 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Thêm thư viện jsQR -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+<!-- CSS cho trang lập hóa đơn -->
+<style>
+    /* Container chính */
+    .invoice-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Tiêu đề */
+    h2 {
+        color: #2196F3;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    /* Nhập ngày tháng */
+    .date-input {
+        margin-bottom: 20px;
+    }
+
+    .date-input label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .date-input input[type="date"] {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* Bảng hóa đơn */
+    #invoiceTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    #invoiceTable th {
+        background-color: #F2F9FF;
+        color: #333;
+        font-weight: 600;
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    #invoiceTable td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+
+    #invoiceTable input {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    #invoiceTable input[readonly] {
+        background-color: #f5f5f5;
+    }
+
+    /* Nút bấm */
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary { background-color: #2196F3; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    .btn-success { background-color: #28a745; color: white; }
+
+    .deleteBtn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Phần tổng kết */
+    #summary {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #F2F9FF;
+        border-radius: 4px;
+    }
+
+    #summary p {
+        margin: 8px 0;
+        font-size: 16px;
+        color: #333;
+    }
+
+    #summary span {
+        font-weight: 600;
+        color: #2196F3;
+    }
+
+    /* Thông báo */
+    .alert {
+        padding: 12px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    /* Nút cuối form */
+    .bottom-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Scanner section */
+    .scanner-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    #scanner {
+        margin: 10px auto;
+        max-width: 300px;
+        position: relative;
+    }
+
+    #video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 2px solid #2196F3;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #stopScan {
+        margin-top: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #scanBarcode {
+        background-color: #2196F3;
+        color: white;
+        transition: background-color 0.3s;
+    }
+
+    /* Print styles */
+    @media print {
+        .no-print { display: none; }
+        .invoice-container { box-shadow: none; }
+        #invoiceTable { border: 1px solid #000; }
+        #invoiceTable th, #invoiceTable td { border: 1px solid #000; }
+    }
+
+    /* Thêm style cho phần nút cuối form */
+.bottom-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.bottom-buttons button {
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+}
+
+/* Style cho nút lập hóa đơn */
+.bottom-buttons button[type="submit"]:not([value="export"]) {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
+}
+
+.bottom-buttons button[type="submit"]:not([value="export"]):hover {
+    background: linear-gradient(135deg, #1976D2, #1565C0);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(33, 150, 243, 0.4);
+}
+
+/* Style cho nút xuất CSV */
+.bottom-buttons button[value="export"] {
+    background: linear-gradient(135deg, #78909C, #546E7A);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(84, 110, 122, 0.3);
+}
+
+.bottom-buttons button[value="export"]:hover {
+    background: linear-gradient(135deg, #546E7A, #455A64);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(84, 110, 122, 0.4);
+}
+
+/* Style cho icon trong nút */
+.bottom-buttons button i {
+    margin-right: 8px;
+}
+
+/* Style khi nút được focus */
+.bottom-buttons button:focus {
+    outline: none;
+    ring: 2px solid rgba(33, 150, 243, 0.5);
+}
+
+
+</style>
+
+<!-- Container chính -->
+<div class="invoice-container">
+    <h2>Lập Hóa Đơn</h2>
+
+    <!-- Form chính -->
+    <form method="POST" action="/tai_quay" id="invoiceForm">
+
+        <!-- Bảng chi tiết hóa đơn -->
+        <table id="invoiceTable">
+            <thead>
+                <tr>
+                    <th>Mã sách</th>
+                    <th>Tên sách</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th class="no-print">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if ma_sach %}
+                {% for i in range(ma_sach|length) %}
+                <tr>
+                    <td><input type="text" name="book[]" value="{{ ma_sach[i] }}" oninput="fetchBookInfo(this)" required></td>
+                    <td><input type="text" name="book_name[]" value="{{ ten_sach[i] }}" readonly></td>
+                    <td><input type="number" name="price[]" value="{{ gia[i] }}" readonly></td>
+                    <td><input type="number" name="quantity[]" value="{{ so_luong[i] }}" min="1" oninput="calculateTotal(this)"></td>
+                    <td><input type="number" name="total[]" value="{{ thanh_tien[i] }}" readonly></td>
+                    <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td><input type="text" name="book[]" oninput="fetchBookInfo(this)" required></td>
+                    <td><input type="text" name="book_name[]" readonly></td>
+                    <td><input type="number" name="price[]" readonly></td>
+                    <td><input type="number" name="quantity[]" min="1" oninput="calculateTotal(this)"></td>
+                    <td><input type="number" name="total[]" readonly></td>
+                    <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Nút thêm sách -->
+        <div class="add-button no-print">
+            <button type="button" class="btn btn-success" id="addRow">Thêm sách</button>
+        </div>
+
+        <!-- Input ẩn -->
+        <input type="hidden" name="totalQuantity" id="totalQuantityInput">
+        <input type="hidden" name="totalAmount" id="totalAmountInput">
+
+        <!-- Tổng kết -->
+        <div id="summary">
+            <p>Tổng số lượng: <span id="totalQuantity">{{ totalQuantity if totalQuantity else 0 }}</span></p>
+            <p>Tổng tiền: <span id="totalAmount">{{ totalAmount if totalAmount else 0 }}</span> VNĐ</p>
+        </div>
+
+        <!-- Thông báo -->
+        {% if err_msg %}
+        <div class="alert alert-danger no-print">{{ err_msg }}</div>
+        {% endif %}
+        {% if success_msg %}
+        <div class="alert alert-success no-print">{{ success_msg }}</div>
+        {% endif %}
+
+       <!-- Nút thao tác -->
+        <div class="bottom-buttons no-print">
+            <button type="submit">
+                <i class="fas fa-file-invoice"></i>
+                Lập hóa đơn
+            </button>
+            <button type="submit" name="action" value="export">
+                <i class="fas fa-file-csv"></i>
+                Xuất CSV
+            </button>
+        </div>
+
+        <!-- Scanner section -->
+        <div class="scanner-section no-print mb-4">
+            <button type="button" class="btn btn-info" id="scanBarcode">
+                <i class="fas fa-qrcode"></i> Quét mã sách
+            </button>
+            <div id="scanner" style="display: none;">
+                <video id="video" width="300" height="200"></video>
+                <button type="button" class="btn btn-danger mt-2" id="stopScan">Dừng quét</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript -->
+<script>
+// Biến toàn cục cho video stream
+let videoStream = null;
+// selector để tìm input có name  = ...
+let emptyInput = document.querySelector('input[name="book[]"][value=""]');
+
+
+// Các element
+const video = document.getElementById('video');
+const scannerDiv = document.getElementById('scanner');
+const scanButton = document.getElementById('scanBarcode');
+const stopButton = document.getElementById('stopScan');
+
+// Hàm lấy thông tin sách
+async function fetchBookInfo(input) {
+    const row = input.closest('tr');
+    const bookCode = input.value.trim();
+//xóa các trường trong dòng đó và kết thúc
+    if (!bookCode) {
+        resetRowFields(row);
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/sach', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ma_sach: bookCode })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            row.querySelector('[name="book_name[]"]').value = data.ten_sach;
+            row.querySelector('[name="price[]"]').value = data.gia;
+            calculateTotal(row.querySelector('[name="quantity[]"]'));
+        } else {
+            resetRowFields(row);
+        }
+    } catch (error) {
+        console.error('Error fetching book info:', error);
+        resetRowFields(row);
+    }
+}
+
+// Hàm reset trường
+function resetRowFields(row) {
+    row.querySelector('[name="book_name[]"]').value = '';
+    row.querySelector('[name="price[]"]').value = '';
+    row.querySelector('[name="total[]"]').value = '';
+    updateTotalSummary();
+}
+
+// Hàm tính tổng tiền cho một dòng
+function calculateTotal(input) {
+    const row = input.closest('tr');
+    const price = parseFloat(row.querySelector('[name="price[]"]').value) || 0;
+    const quantity = parseInt(input.value) || 0;
+    row.querySelector('[name="total[]"]').value = (price * quantity).toFixed(2);
+    updateTotalSummary();
+}
+
+// Hàm cập nhật tổng số lượng và tổng tiền
+function updateTotalSummary() {
+    let totalQuantity = 0;
+    let totalAmount = 0;
+
+    document.querySelectorAll('#invoiceTable tbody tr').forEach(row => {
+        totalQuantity += parseInt(row.querySelector('[name="quantity[]"]').value) || 0;
+        totalAmount += parseFloat(row.querySelector('[name="total[]"]').value) || 0;
+    });
+
+    document.getElementById('totalQuantity').textContent = totalQuantity;
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+    document.getElementById('totalQuantityInput').value = totalQuantity;
+    document.getElementById('totalAmountInput').value = totalAmount.toFixed(2);
+}
+
+// Hàm thêm dòng mới
+document.getElementById('addRow').addEventListener('click', function() {
+    const tbody = document.querySelector('#invoiceTable tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td><input type="text" name="book[]" oninput="fetchBookInfo(this)" required></td>
+        <td><input type="text" name="book_name[]" readonly></td>
+        <td><input type="number" name="price[]" readonly></td>
+        <td><input type="number" name="quantity[]" min="1" oninput="calculateTotal(this)"></td>
+        <td><input type="number" name="total[]" readonly></td>
+        <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+    `;
+    tbody.appendChild(newRow);
+});
+
+// Hàm xóa dòng
+function deleteRow(button) {
+    button.closest('tr').remove();
+    updateTotalSummary();
+}
+
+// Hàm bắt đầu quét
+async function startScanning() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: {
+                    ideal: 'environment'
+                },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        });
+
+        videoStream = stream;
+        video.srcObject = stream;
+        video.play();
+        scannerDiv.style.display = 'block';
+        scanQRCode();
+    } catch (err) {
+        console.error('Error accessing camera:', err);
+        alert('Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập camera.');
+    }
+}
+
+// Hàm dừng quét
+function stopScanning() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    scannerDiv.style.display = 'none';
+}
+
+// Hàm quét mã QR
+function scanQRCode() {
+    if (!videoStream) return;
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // phân tích frame để tìm mã qr
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                // Lấy mã sách từ QR code
+                const bookCode = code.data;
+                console.log('Found QR code:', bookCode);
+
+                // Phát âm thanh thành công
+                const audio = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAEAAABVgANTU1NTU1Q0NDQ0NDUFBQUFBQXl5eXl5ea2tra2tra3l5eXl5eYaGhoaGhpSUlJSUlKGhoaGhoaGvr6+vr6+8vLy8vLzKysrKysrY2NjY2Njm5ubm5ub39/f39/f///////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAABVjMmLsL/+MYxAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDsAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxHYAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxLEAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV');
+                audio.play();
+
+                // Tạo và thêm dòng mới
+                document.getElementById('addRow').click();
+
+                // Đợi DOM cập nhật và điền thông tin vào dòng mới
+                setTimeout(() => {
+                    const lastInput = document.querySelector('input[name="book[]"]:last-of-type');
+                    if (lastInput) {
+                        lastInput.value = bookCode;
+                        fetchBookInfo(lastInput);
+
+                        // Tự động set số lượng = 1 cho dòng mới
+                        const quantityInput = lastInput.closest('tr').querySelector('[name="quantity[]"]');
+                        if (quantityInput) {
+                            quantityInput.value = 1;
+                            calculateTotal(quantityInput);
+                        }
+                    }
+                }, 100);
+
+                // Hiển thị thông báo thành công
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success';
+                successAlert.textContent = 'Đã quét thành công mã sách: ' + bookCode;
+                scannerDiv.parentNode.insertBefore(successAlert, scannerDiv.nextSibling);
+
+                // Xóa thông báo cũ nếu có
+                const oldAlert = document.querySelector('.alert-success');
+                if (oldAlert && oldAlert !== successAlert) {
+                    oldAlert.remove();
+                }
+
+                // Tự động ẩn thông báo sau 3 giây
+                setTimeout(() => {
+                    successAlert.remove();
+                }, 3000);
+
+                // Đợi 1 giây trước khi cho phép quét mã tiếp theo
+                // để tránh quét trùng lặp
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve();
+                        requestAnimationFrame(tick);
+                    }, 1000);
+                });
+            }
+        }
+
+        // Tiếp tục quét nếu chưa tìm thấy mã QR
+        if (videoStream) {
+            requestAnimationFrame(tick);
+        }
+    }
+
+    // Bắt đầu quét
+    tick();
+}
+
+// Event listeners
+scanButton.addEventListener('click', startScanni0ng);
+stopButton.addEventListener('click', stopScanning);
+
+// Dừng quét khi rời trang
+window.addEventListener('beforeunload', stopScanning);
+
+// Phím tắt ESC để dừng quét
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        stopScanning();
+    }
+});
+
+// Khởi tạo tổng số lượng và tổng tiền khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    updateTotalSummary();
+});
+</script>
+{% endblock %}

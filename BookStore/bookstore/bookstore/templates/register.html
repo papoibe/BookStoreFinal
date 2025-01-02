@@ -1,0 +1,155 @@
+{%extends 'layout/base.html'%}
+{%block title%} Đăng ký {%endblock%}
+{%block content%}
+<h1 class="login-title">ĐĂNG KÝ</h1>
+<div class="form-container">
+    <form method="post" action="/register" enctype="multipart/form-data" class="login100-form">
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" id="name" placeholder="Nhập tài khoản" name="name" required>
+            <label for="name">Họ tên</label>
+        </div>
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" id="username" placeholder="Nhập tài khoản" name="username"
+                   pattern="[A-Za-z0-9]*" required>
+            <label for="username">Tài khoản</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" name="password"
+                   required>
+            <label for="password">Nhập mật khẩu</label>
+        </div>
+        <div class="form-floating mt-3 mb-3">
+            <input type="password" class="form-control" id="confirm" placeholder="Nhập lại mật khẩu" name="confirm"
+                   required>
+            <label for="confirm">Nhập lại mật khẩu</label>
+        </div>
+
+        {%if err_msg%}
+        <div class="alert alert-danger">{{err_msg}}</div>
+        {%endif%}
+        <div class="form-floating mt-3 mb-3" style="text-align:center">
+            <button class="btn btn-success" type="submit">Đăng ký</button>
+        </div>
+        <hr>
+        <div class="w-full text-center p-t-55">
+            <span class="txt2">Đăng ký với</span>
+        </div>
+
+        <a href="https://www.facebook.com/" class="btn-face m-b-20 btn btn-primary">
+            <i class="fa fa-facebook" style="font-size:24px; margin-right:10px;"></i> Facebook
+        </a>
+        <a href="mailto:email@example.com" class="btn-google m-b-20 btn btn-danger">
+            <i class="fa fa-google" style="font-size:24px; margin-right:10px;"></i> Google
+        </a>
+    </form>
+</div>
+<br>
+<br>
+<style>
+    /* Căn giữa toàn bộ form */
+.form-container {
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center;    /* Căn giữa theo chiều dọc */
+    min-height: 60vh;       /* Chiều cao bằng với chiều cao màn hình */
+    background: linear-gradient(to bottom, #E3F0AF, #5DB996); /* Gradient từ xanh nhạt đến xanh đậm */
+    border-radius: 15px;    /* Góc bo tròn */
+    padding: 20px;
+}
+
+/* Kiểu dáng cho form */
+.login100-form {
+    background: linear-gradient(135deg, #C0EBA6, #F4F4F4);   /* Màu nền trắng */
+    padding: 30px;          /* Thêm khoảng cách trong form */
+    border-radius: 10px;    /* Góc bo tròn */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    width: 100%;            /* Để thích nghi với kích thước container */
+    max-width: 400px;       /* Giới hạn chiều rộng form */
+}
+
+
+/* Kiểu dáng cho tiêu đề ĐĂNG NHẬP */
+.login-title {
+    font-size: 36px;              /* Kích thước chữ lớn */
+    font-weight: bold;            /* Tăng độ đậm */
+    background: linear-gradient(to right, #00FF9C, #B6FFA1); /* Gradient từ vàng cam đến vàng nhạt */
+    -webkit-background-clip: text; /* Áp dụng gradient cho chữ */
+    color: transparent;           /* Chữ có màu trong suốt để gradient hiển thị */
+    text-align: center;           /* Căn giữa chữ */
+    text-transform: uppercase;    /* Chuyển thành chữ in hoa */
+    margin-top: 20px;             /* Khoảng cách phía trên */
+    margin-bottom: 20px;          /* Khoảng cách phía dưới */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3); /* Hiệu ứng đổ bóng nhẹ */
+    font-family: 'Roboto', sans-serif; /* Font hiện đại */
+}
+
+/* Hiệu ứng khi hover tiêu đề */
+.login-title:hover {
+    color: #00FF9C;               /* Màu xanh đậm hơn khi hover */
+    transform: scale(1.1);        /* Phóng to nhẹ chữ khi hover */
+    transition: all 0.3s ease;    /* Hiệu ứng mượt khi hover */
+}
+
+/* Kiểu dáng cho các trường input */
+.form-floating {
+    margin-bottom: 20px; /* Khoảng cách giữa các trường */
+}
+
+/* Kiểu dáng cho nút đăng ký */
+button.btn {
+    background-color: #28a745;  /* Màu nền nút */
+    color: #ffffff;             /* Màu chữ */
+    border: none;               /* Loại bỏ viền */
+    padding: 12px 20px;         /* Khoảng cách trong nút */
+    border-radius: 5px;         /* Bo góc */
+    font-size: 16px;            /* Kích thước chữ */
+    cursor: pointer;           /* Con trỏ chuột khi hover */
+    width: 100%;                /* Để nút chiếm toàn bộ chiều rộng */
+}
+
+/* Hiệu ứng khi hover nút đăng ký */
+button.btn:hover {
+    background-color: #218838;  /* Màu nền thay đổi khi hover */
+}
+
+/* Kiểu dáng cho các thông báo lỗi */
+.alert.alert-danger {
+    background-color: #f8d7da;  /* Màu nền cho thông báo lỗi */
+    color: #721c24;              /* Màu chữ cho thông báo lỗi */
+    border: 1px solid #f5c6cb;  /* Đường viền cho thông báo lỗi */
+    padding: 10px;               /* Khoảng cách bên trong */
+    margin-bottom: 20px;         /* Khoảng cách phía dưới */
+}
+
+/* Căn giữa phần đăng ký với các mạng xã hội */
+.w-full.text-center.p-t-55 {
+    margin-top: 20px;
+}
+
+a.btn-face, a.btn-google {
+    width: 100%;                /* Để các nút xã hội chiếm toàn bộ chiều rộng */
+    margin-bottom: 15px;        /* Khoảng cách giữa các nút */
+    padding: 12px;              /* Khoảng cách trong nút */
+    font-size: 18px;            /* Kích thước chữ cho các nút */
+}
+
+/* Kiểu dáng cho các nút mạng xã hội */
+a.btn-face {
+    background-color: #3b5998;  /* Màu nền Facebook */
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+a.btn-google {
+    background-color: #db4437;  /* Màu nền Google */
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+a.btn-face:hover, a.btn-google:hover {
+    opacity: 0.9;               /* Hiệu ứng khi hover các nút mạng xã hội */
+}
+
+</style>
+{%endblock%}
+

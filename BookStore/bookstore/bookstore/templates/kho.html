@@ -1,0 +1,298 @@
+{%extends 'layout/base.html'%}
+{% block content %}
+<style>
+    /* Container chính chứa toàn bộ nội dung phiếu nhập */
+    .invoice-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Style cho tiêu đề */
+    h2 {
+        color: #2196F3;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    /* Style cho phần nhập ngày tháng */
+    .date-input {
+        margin-bottom: 20px;
+    }
+
+    .date-input label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .date-input input[type="date"] {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* Style cho bảng chi tiết */
+    #bookTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    /* Style cho header của bảng */
+    #bookTable th {
+        background-color: #F2F9FF;
+        color: #333;
+        font-weight: 600;
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    /* Style cho các ô trong bảng */
+    #bookTable td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+
+    /* Style cho input trong bảng */
+    #bookTable input {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* Style cho input chỉ đọc */
+    #bookTable input[readonly] {
+        background-color: #f5f5f5;
+    }
+
+    /* Style chung cho các nút bấm */
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    /* Style cho các loại nút khác nhau */
+    .btn-primary {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    /* Style cho nút xóa trong bảng */
+    .deleteBtn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Style cho nút thêm dòng mới */
+    #addRow {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        margin: 10px 0;
+        cursor: pointer;
+    }
+
+    /* Style cho các thông báo */
+    .alert {
+        padding: 12px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    /* Style cho phần nút bấm ở cuối form */
+    .bottom-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .bottom-buttons button {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .bottom-buttons button[type="submit"] {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+    }
+
+    .bottom-buttons button[value="export"] {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    /* Style cho chế độ in ấn */
+    @media print {
+        .no-print {
+            display: none;
+        }
+        .invoice-container {
+            box-shadow: none;
+        }
+        #bookTable {
+            border: 1px solid #000;
+        }
+        #bookTable th,
+        #bookTable td {
+            border: 1px solid #000;
+        }
+    }
+</style>
+
+<div class="invoice-container">
+    <h2>Phiếu Nhập Sách</h2>
+    <form method="POST" action="/kho">
+        <table id="bookTable">
+            <thead>
+                <tr>
+                    <th>Mã Sách</th>
+                    <th>Tên sách</th>
+                    <th>Số lượng</th>
+                    <th class="no-print">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if ma_sach %}
+                    {% for i in range(ma_sach|length) %}
+                    <tr>
+                        <td><input type="text" name="book[]" value="{{ ma_sach[i] }}" oninput="fetchBookInfo(this)" required></td>
+                        <td><input type="text" name="book_name[]" value="{{ ten_sach[i] }}" readonly></td>
+                        <td><input type="number" name="quantity[]" value="{{ so_luong[i] }}" min="1"></td>
+                        <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td><input type="text" name="book[]" oninput="fetchBookInfo(this)" required></td>
+                        <td><input type="text" name="book_name[]" readonly></td>
+                        <td><input type="number" name="quantity[]" min="1"></td>
+                        <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div class="add-button no-print">
+            <button type="button" class="btn btn-success" id="addRow">Thêm sách</button>
+        </div>
+
+        {% if err_msg %}
+        <div class="alert alert-danger no-print">{{ err_msg }}</div>
+        {% endif %}
+
+        {% if success_msg %}
+        <div class="alert alert-success no-print">{{ success_msg }}</div>
+        {% endif %}
+
+        <div class="bottom-buttons no-print">
+            <button type="submit">Nhập sách</button>
+            <button type="submit" name="action" value="export">In phiếu</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Hàm lấy thông tin sách khi nhập mã sách
+    async function fetchBookInfo(input) {
+        const row = input.closest('tr');
+        const bookCode = input.value.trim();
+
+        if (!bookCode) {
+            resetRowFields(row);
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/sach', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ma_sach: bookCode })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                row.querySelector('[name="book_name[]"]').value = data.ten_sach;
+            } else {
+                resetRowFields(row);
+            }
+        } catch (error) {
+            console.error('Error fetching book info:', error);
+            resetRowFields(row);
+        }
+    }
+
+    // Hàm reset các trường trong một dòng
+    function resetRowFields(row) {
+        row.querySelector('[name="book_name[]"]').value = '';
+    }
+
+    // Thêm sự kiện click cho nút thêm dòng mới
+    document.getElementById('addRow').addEventListener('click', function() {
+        const tbody = document.querySelector('#bookTable tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" name="book[]" oninput="fetchBookInfo(this)" required></td>
+            <td><input type="text" name="book_name[]" readonly></td>
+            <td><input type="number" name="quantity[]" min="1"></td>
+            <td class="no-print"><button type="button" class="deleteBtn" onclick="deleteRow(this)">Xóa</button></td>
+        `;
+        tbody.appendChild(newRow);
+    });
+
+    // Hàm xóa một dòng
+    function deleteRow(button) {
+        button.closest('tr').remove();
+    }
+</script>
+{% endblock %}
+{% block title %}
+Kho
+{% endblock %}

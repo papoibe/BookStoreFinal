@@ -1,0 +1,303 @@
+{% extends 'layout/base.html' %}
+
+{% block header %}
+<nav class="navbar navbar-expand-sm" style="background-color: #F2F9FF; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="https://res.cloudinary.com/dwmngambu/image/upload/v1735107510/nswa3fbhevj2zrepjz3z.jpg"
+             class="brand-logo">
+        <span class="brand-text ms-2">Nhà Sách Hoàng Tử Bé</span>
+    </a>
+    <button class="navbar-toggler" data-bs-target="#collapsibleNavbar" data-bs-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav me-auto">
+            <a class="nav-link active custom-link" href="/">Trang chủ</a>
+            <form class="d-flex">
+                <input class="form-control me-2" name="q" placeholder="Nhập từ khóa..." type="text">
+                <button class="btn btn-primary" type="submit">Tìm</button>
+            </form>
+        </ul>
+
+        <div class="navbar-nav d-flex align-items-center">
+            <a class="nav-link text-success btn" href="/history" style="margin-right: 10px;">
+                <i class="fas fa-history" style="margin-right: 5px;"></i>Lịch sử đặt hàng</a>
+            <a class="nav-link text-success btn" href="{{ url_for('cart') }}">
+                <i class="fas fa-shopping-cart"></i>
+                Giỏ hàng
+                <span class="badge badge-info" id="cartCounter" style="color: orange">
+                    {{ cart_stats.total_quantity }}
+                </span>
+            </a>
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="navbar-nav">
+            <a class="nav-link text-info" href="/login">
+                <img class="rounded img-fluid" src="{{current_user.avatar}}" width="25">
+                Chào {{current_user.name}}!
+            </a>
+            <a class="nav-link text-info" href="/logout">
+                &#9940;Đăng xuất
+            </a>
+        </div>
+        {% else %}
+        <div class="menu d-flex">
+            <a class="nav-link text-info" href="/login">&#128100; Đăng nhập</a>
+            <a class="nav-link text-info" href="/register">&#128101; Đăng ký</a>
+        </div>
+        {% endif %}
+    </div>
+</nav>
+{% endblock %}
+
+{% block title %}Chi tiết sản phẩm{% endblock %}
+
+{% block content %}
+<style>
+    .product-image {
+        transition: transform 0.3s ease;
+        max-height: 400px;
+        object-fit: contain;
+    }
+
+    .product-image:hover {
+        transform: scale(1.05);
+    }
+
+    .stock-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+        margin-top: 1rem;
+    }
+
+    .comment-section {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .comment-input {
+        margin-bottom: 1rem;
+    }
+
+    .comment-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 0;
+    }
+
+    .comment-avatar {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+
+    .custom-link {
+    font-family: 'Arial', sans-serif; /* Đổi font chữ */
+    font-size: 20px; /* Kích thước chữ */
+    font-weight: bold; /* Đậm chữ */
+    color: green; /* Màu chữ */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Hiệu ứng bóng chữ */
+    padding: 5px 10px; /* Khoảng cách bên trong */
+    border-radius: 5px; /* Bo góc */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi */
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <img src="{{ sach.image }}" class="card-img-top product-image" alt="{{ sach.ten_sach }}">
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h2 class="text-info">{{ sach.ten_sach }}</h2>
+                    <h3 class="text-danger">{{ "{:,.0f}".format(sach.gia) }} VND</h3>
+                    <p class="text-muted">Số lượng trong kho: <span id="stockQuantity">{{ sach.so_luong }}</span></p>
+
+                    <!-- Additional Book Info -->
+                    <div class="book-details mb-3">
+                        <p class="mb-1"><strong>Tác giả:</strong> {{ sach.tac_gia.ten_tac_gia }}</p>
+                        <p class="mb-1"><strong>Thể loại:</strong> {{ sach.the_loai.ten_the_loai }}</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-3">
+                        {% if sach.so_luong > 0 %}
+                            <button id="orderButton" class="btn btn-success w-100 mb-2"
+                                    onclick="addToCart({{ sach.ma_sach }}, '{{ sach.ten_sach }}', {{ sach.gia }}, {{ sach.so_luong }})">
+                                <i class="fas fa-shopping-cart"></i> Đặt hàng
+                            </button>
+                            {% if sach.so_luong <= 5 %}
+                                <div class="stock-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Chỉ còn {{ sach.so_luong }} sản phẩm trong kho!
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-secondary w-100 mb-2" disabled>
+                                <i class="fas fa-times-circle"></i> Hết hàng
+                            </button>
+                        {% endif %}
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Section -->
+    <div class="comment-section mt-4">
+        <h4 class="mb-4">Bình luận</h4>
+        {% if current_user.is_authenticated %}
+        <div class="comment-input">
+            <textarea class="form-control" id="commentId" rows="3"
+                      placeholder="Nhập nội dung bình luận..."></textarea>
+            <button class="btn btn-primary mt-2" onclick="addComment({{sach.ma_sach}})">
+                <i class="fas fa-comment"></i> Bình luận
+            </button>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <a href="{{ url_for('login_process') }}" class="alert-link">Đăng nhập để bình luận</a>
+        </div>
+        {% endif %}
+
+        <div id="commentArea">
+            {% for comment in sach.comments %}
+            <div class="comment-item">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <img src="{{ comment.user.avatar }}" class="comment-avatar rounded-circle">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">{{ comment.user.name }}</h6>
+                        <p class="mb-1">{{ comment.content }}</p>
+                        <small class="text-muted">
+                            {{ comment.created_date.strftime('%Y-%m-%d %H:%M') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="cartToastMessage"></div>
+    </div>
+</div>
+
+<script>
+// Khởi tạo toast
+const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
+
+// Hiển thị thông báo
+function showToast(message, isSuccess = true) {
+    const toastEl = document.getElementById('cartToast');
+    const toastHeader = toastEl.querySelector('.toast-header');
+    const toastBody = document.getElementById('cartToastMessage');
+
+    toastHeader.className = `toast-header ${isSuccess ? 'bg-success' : 'bg-danger'} text-white`;
+    toastBody.textContent = message;
+
+    cartToast.show();
+}
+
+// Thêm vào giỏ hàng
+async function addToCart(id, name, price, stock) {
+    try {
+        // Kiểm tra số lượng trong giỏ hiện tại
+        const cart = JSON.parse(sessionStorage.getItem('cart')) || {};
+        const currentQuantity = cart[id] ? cart[id].quantity : 0;
+
+        const orderQuantity = 1; // Mặc định thêm 1 sản phẩm
+
+        if (currentQuantity + orderQuantity > stock) {
+            showToast(`Không thể thêm sản phẩm. Đã đạt giới hạn số lượng trong kho!`, false);
+            return;
+        }
+
+        const response = await fetch('/api/add-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'ma_sach': id,
+                'ten_sach': name,
+                'gia': price,
+                'so_luong': orderQuantity
+            })
+        });
+
+        const data = await response.json();
+
+        // Cập nhật UI
+        const counter = document.getElementById('cartCounter');
+        counter.innerText = data.total_quantity;
+
+        // Cập nhật sessionStorage
+        cart[id] = {
+            quantity: currentQuantity + orderQuantity,
+            name: name,
+            price: price
+        };
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+
+        showToast(`Đã thêm "${name}" vào giỏ hàng`);
+
+    } catch (error) {
+        console.error('Lỗi:', error);
+        showToast('Có lỗi xảy ra khi thêm vào giỏ hàng!', false);
+    }
+}
+
+// Kiểm tra số lượng trong kho khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    const stock = parseInt(document.getElementById('stockQuantity').textContent);
+    const orderButton = document.getElementById('orderButton');
+
+    if (stock <= 0 && orderButton) {
+        orderButton.disabled = true;
+        orderButton.innerHTML = '<i class="fas fa-times-circle"></i> Hết hàng';
+    }
+
+    // Kiểm tra số lượng trong giỏ hàng khi tải trang
+    const cart = JSON.parse(sessionStorage.getItem('cart')) || {};
+    const id = document.querySelector('[onclick]')?.getAttribute('onclick')?.match(/addToCart\((\d+)/)?.[1];
+
+    if (id && cart[id]) {
+        const currentQuantity = cart[id].quantity;
+        const remainingStock = stock - currentQuantity;
+
+        if (remainingStock <= 0) {
+            if (orderButton) {
+                orderButton.disabled = true;
+                orderButton.innerHTML = '<i class="fas fa-times-circle"></i> Đã đạt giới hạn';
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
