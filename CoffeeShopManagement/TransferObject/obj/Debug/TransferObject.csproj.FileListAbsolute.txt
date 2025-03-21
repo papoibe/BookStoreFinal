@@ -1,0 +1,6 @@
+D:\CoffeeShopManagement\TransferObject\bin\Debug\TransferObject.dll
+D:\CoffeeShopManagement\TransferObject\bin\Debug\TransferObject.pdb
+D:\CoffeeShopManagement\TransferObject\obj\Debug\TransferObject.csproj.AssemblyReference.cache
+D:\CoffeeShopManagement\TransferObject\obj\Debug\TransferObject.csproj.CoreCompileInputs.cache
+D:\CoffeeShopManagement\TransferObject\obj\Debug\TransferObject.dll
+D:\CoffeeShopManagement\TransferObject\obj\Debug\TransferObject.pdb

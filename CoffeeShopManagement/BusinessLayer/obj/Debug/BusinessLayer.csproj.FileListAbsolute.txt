@@ -1,0 +1,11 @@
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\BusinessLayer.dll
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\BusinessLayer.pdb
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\DataLayer.dll
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\TransferObject.dll
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\DataLayer.pdb
+D:\CoffeeShopManagement\BusinessLayer\bin\Debug\TransferObject.pdb
+D:\CoffeeShopManagement\BusinessLayer\obj\Debug\BusinessLayer.csproj.AssemblyReference.cache
+D:\CoffeeShopManagement\BusinessLayer\obj\Debug\BusinessLayer.csproj.CoreCompileInputs.cache
+D:\CoffeeShopManagement\BusinessLayer\obj\Debug\BusinessLayer.csproj.CopyComplete
+D:\CoffeeShopManagement\BusinessLayer\obj\Debug\BusinessLayer.dll
+D:\CoffeeShopManagement\BusinessLayer\obj\Debug\BusinessLayer.pdb

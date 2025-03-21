@@ -1,0 +1,12 @@
+D:\CoffeeShopManagement\bin\Debug\PresentationLayer.exe.config
+D:\CoffeeShopManagement\bin\Debug\PresentationLayer.exe
+D:\CoffeeShopManagement\bin\Debug\PresentationLayer.pdb
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.csproj.AssemblyReference.cache
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.Properties.Resources.resources
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.csproj.GenerateResource.cache
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.csproj.CoreCompileInputs.cache
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.csproj.CopyComplete
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.exe
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.pdb
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.CoffeeShop.resources
+D:\CoffeeShopManagement\PresentationLayer\obj\Debug\PresentationLayer.Login.resources
