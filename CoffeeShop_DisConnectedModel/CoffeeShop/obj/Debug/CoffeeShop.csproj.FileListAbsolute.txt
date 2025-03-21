@@ -1,0 +1,10 @@
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\bin\Debug\CoffeeShop.exe.config
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\bin\Debug\CoffeeShop.exe
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\bin\Debug\CoffeeShop.pdb
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.csproj.AssemblyReference.cache
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.Properties.Resources.resources
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.Supplier.resources
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.csproj.GenerateResource.cache
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.csproj.CoreCompileInputs.cache
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.exe
+D:\CoffeeShop_DisConnectedModel\CoffeeShop\obj\Debug\CoffeeShop.pdb
